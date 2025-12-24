@@ -37,13 +37,17 @@ export default function Navbar() {
       <div className="px-4 sm:px-6 py-4 max-w-7xl mx-auto flex items-center justify-between">
         <Link 
           to="/" 
-          className="font-bold text-lg hover:opacity-80 transition flex items-center gap-3"
-          style={{ color: navbarText }}
+          className="font-bold text-xl hover:opacity-80 transition flex items-center gap-3"
+          style={{ fontFamily: 'Montserrat, sans-serif' }}
         >
           {settings?.logoUrl && (
-            <img src={settings.logoUrl} alt="Logo" className="h-8 w-auto" />
+            <img src={settings.logoUrl} alt="Logo" className="h-16 w-auto" />
           )}
-          {settings?.siteName || 'Metasoft Info'}
+          <div>
+            <span style={{ color: '#1D1D35' }}>METASOFT INFO</span>
+            {' '}
+            <span style={{ color: '#6C5DD3' }}>SOLUTION</span>
+          </div>
         </Link>
         <div className="flex items-center gap-6">
           {!isAdmin && (
