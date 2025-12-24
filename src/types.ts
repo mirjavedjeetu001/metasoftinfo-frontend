@@ -75,3 +75,21 @@ export interface AuthResponse {
   accessToken: string;
   user: User;
 }
+
+export interface TeamMember {
+  id: number;
+  name: string;
+  designation: string;
+  category: string;
+  imageUrl: string;
+  email?: string;
+  linkedin?: string;
+  twitter?: string;
+  facebook?: string;
+  instagram?: string;
+  bio?: string;
+  displayOrder: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}

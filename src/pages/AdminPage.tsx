@@ -47,10 +47,14 @@ import {
   createUser,
   updateUser,
   deleteUser,
+  fetchTeamMembers,
+  createTeamMember,
+  updateTeamMember,
+  deleteTeamMember,
 } from '../api/cms';
 import { LogOut, Plus, X, Trash2, Edit2 } from 'lucide-react';
 
-type AdminTab = 'dashboard' | 'hero' | 'process' | 'why-choose-us' | 'site-settings' | 'services' | 'projects' | 'testimonials' | 'partners' | 'pages' | 'navbar-menu' | 'users' | 'theme';
+type AdminTab = 'dashboard' | 'hero' | 'process' | 'why-choose-us' | 'site-settings' | 'services' | 'projects' | 'testimonials' | 'partners' | 'pages' | 'navbar-menu' | 'users' | 'team' | 'theme';
 
 export default function AdminPage() {
   const { isAuthed, login, logout, user } = useAuth();
@@ -67,6 +71,7 @@ export default function AdminPage() {
   const [editingWhy, setEditingWhy] = useState<any>(null);
   const [editingPage, setEditingPage] = useState<any>(null);
   const [editingUser, setEditingUser] = useState<any>(null);
+  const [editingTeamMember, setEditingTeamMember] = useState<any>(null);
 
   // Fetch all data
   const heroQuery = useQuery({ queryKey: ['hero'], queryFn: fetchHero, enabled: isAuthed });
@@ -79,6 +84,7 @@ export default function AdminPage() {
   const pagesQuery = useQuery({ queryKey: ['pages'], queryFn: fetchPages, enabled: isAuthed });
   const navbarMenuQuery = useQuery({ queryKey: ['navbarMenu'], queryFn: fetchNavbarMenu, enabled: isAuthed });
   const usersQuery = useQuery({ queryKey: ['users'], queryFn: fetchUsers, enabled: isAuthed });
+  const teamQuery = useQuery({ queryKey: ['team-members'], queryFn: fetchTeamMembers, enabled: isAuthed });
 
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
@@ -645,6 +651,74 @@ export default function AdminPage() {
     }
   };
 
+  // Team Member Handlers
+  const handleTeamMemberAdd = async (e: any) => {
+    e.preventDefault();
+    const form = new FormData(e.currentTarget);
+    setStatus('Creating team member...');
+    try {
+      await createTeamMember({
+        name: form.get('name'),
+        designation: form.get('designation'),
+        category: form.get('category'),
+        imageUrl: form.get('imageUrl'),
+        email: form.get('email'),
+        linkedin: form.get('linkedin'),
+        twitter: form.get('twitter'),
+        facebook: form.get('facebook'),
+        instagram: form.get('instagram'),
+        bio: form.get('bio'),
+        displayOrder: Number(form.get('displayOrder')) || 0,
+      });
+      await qc.invalidateQueries({ queryKey: ['team-members'] });
+      setStatus('Team member created ✓');
+      setTimeout(() => setStatus(null), 3000);
+      (e.target as HTMLFormElement).reset();
+    } catch (err) {
+      setStatus('Failed to create team member');
+    }
+  };
+
+  const handleTeamMemberEdit = async (e: any) => {
+    e.preventDefault();
+    const form = new FormData(e.currentTarget);
+    setStatus('Updating team member...');
+    try {
+      await updateTeamMember(editingTeamMember.id, {
+        name: form.get('name'),
+        designation: form.get('designation'),
+        category: form.get('category'),
+        imageUrl: form.get('imageUrl'),
+        email: form.get('email'),
+        linkedin: form.get('linkedin'),
+        twitter: form.get('twitter'),
+        facebook: form.get('facebook'),
+        instagram: form.get('instagram'),
+        bio: form.get('bio'),
+        displayOrder: Number(form.get('displayOrder')) || 0,
+      });
+      await qc.invalidateQueries({ queryKey: ['team-members'] });
+      setStatus('Team member updated ✓');
+      setEditingTeamMember(null);
+      setTimeout(() => setStatus(null), 3000);
+    } catch (err) {
+      setStatus('Failed to update team member');
+    }
+  };
+
+  const handleTeamMemberDelete = async (id: number) => {
+    if (!window.confirm('Delete this team member? This action cannot be undone.')) return;
+    setStatus('Deleting team member...');
+    try {
+      await deleteTeamMember(id);
+      await qc.invalidateQueries({ queryKey: ['team-members'] });
+      setStatus('Team member deleted ✓');
+      setTimeout(() => setStatus(null), 3000);
+    } catch (err) {
+      setStatus('Failed to delete team member');
+    }
+  };
+
   if (!isAuthed) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center px-4">
@@ -722,6 +796,7 @@ export default function AdminPage() {
             { id: 'partners', label: '🤝 Partners' },
             { id: 'pages', label: '📄 Pages' },
             { id: 'navbar-menu', label: '🔗 Navbar Menu' },
+            { id: 'team', label: '👨‍💼 Team Members' },
             { id: 'users', label: '👥 Users' },
             { id: 'site-settings', label: '⚙️ Site Settings' },
             { id: 'theme', label: '🎨 Theme' },
@@ -2012,6 +2087,211 @@ export default function AdminPage() {
                 <p className="text-gray-500 text-center py-8 bg-gray-50 rounded-lg border border-gray-200">
                   No menu items yet. Add menu items above to customize your navbar.
                 </p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Team Members Tab */}
+        {activeTab === 'team' && (
+          <div className="bg-white border border-gray-200 rounded-lg p-8 shadow-sm">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Team Members Management</h2>
+            
+            {/* Add/Edit Form */}
+            <form onSubmit={editingTeamMember ? handleTeamMemberEdit : handleTeamMemberAdd} className="mb-8 pb-8 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                {editingTeamMember ? 'Edit Team Member' : 'Add New Team Member'}
+              </h3>
+              
+              <div className="grid md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">Name *</label>
+                  <input
+                    type="text"
+                    name="name"
+                    placeholder="John Doe"
+                    defaultValue={editingTeamMember?.name}
+                    required
+                    className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:border-gray-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">Designation *</label>
+                  <input
+                    type="text"
+                    name="designation"
+                    placeholder="CEO & Founder"
+                    defaultValue={editingTeamMember?.designation}
+                    required
+                    className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:border-gray-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">Category *</label>
+                  <select
+                    name="category"
+                    defaultValue={editingTeamMember?.category || 'management'}
+                    required
+                    className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:border-gray-500 focus:outline-none"
+                  >
+                    <option value="management">Management</option>
+                    <option value="tech">Tech Team</option>
+                    <option value="design">Design Team</option>
+                    <option value="marketing">Marketing Team</option>
+                    <option value="sales">Sales Team</option>
+                    <option value="support">Support Team</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">Display Order</label>
+                  <input
+                    type="number"
+                    name="displayOrder"
+                    placeholder="0"
+                    defaultValue={editingTeamMember?.displayOrder || 0}
+                    className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:border-gray-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-sm font-semibold text-gray-900 mb-2">Image URL *</label>
+                <input
+                  type="text"
+                  name="imageUrl"
+                  placeholder="https://example.com/image.jpg"
+                  defaultValue={editingTeamMember?.imageUrl}
+                  required
+                  className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:border-gray-500 focus:outline-none"
+                />
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">Email</label>
+                  <input
+                    type="email"
+                    name="email"
+                    placeholder="john@example.com"
+                    defaultValue={editingTeamMember?.email}
+                    className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:border-gray-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">LinkedIn URL</label>
+                  <input
+                    type="text"
+                    name="linkedin"
+                    placeholder="https://linkedin.com/in/johndoe"
+                    defaultValue={editingTeamMember?.linkedin}
+                    className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:border-gray-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">Twitter URL</label>
+                  <input
+                    type="text"
+                    name="twitter"
+                    placeholder="https://twitter.com/johndoe"
+                    defaultValue={editingTeamMember?.twitter}
+                    className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:border-gray-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">Facebook URL</label>
+                  <input
+                    type="text"
+                    name="facebook"
+                    placeholder="https://facebook.com/johndoe"
+                    defaultValue={editingTeamMember?.facebook}
+                    className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:border-gray-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">Instagram URL</label>
+                  <input
+                    type="text"
+                    name="instagram"
+                    placeholder="https://instagram.com/johndoe"
+                    defaultValue={editingTeamMember?.instagram}
+                    className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:border-gray-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-sm font-semibold text-gray-900 mb-2">Bio</label>
+                <textarea
+                  name="bio"
+                  placeholder="Brief bio about the team member..."
+                  defaultValue={editingTeamMember?.bio}
+                  rows={3}
+                  className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:border-gray-500 focus:outline-none"
+                />
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  type="submit"
+                  className="px-8 py-3 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition shadow-md"
+                >
+                  {editingTeamMember ? 'Update Member' : 'Add Member'}
+                </button>
+                {editingTeamMember && (
+                  <button
+                    type="button"
+                    onClick={() => setEditingTeamMember(null)}
+                    className="px-6 py-3 bg-gray-200 text-gray-900 font-semibold rounded-lg hover:bg-gray-300 transition"
+                  >
+                    Cancel
+                  </button>
+                )}
+              </div>
+            </form>
+
+            {/* Team Members List */}
+            <div className="mb-4">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Team Members</h3>
+              {teamQuery.data && teamQuery.data.length > 0 ? (
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {teamQuery.data.map((member: any) => (
+                    <div key={member.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+                      <div className="flex items-start gap-4">
+                        <img
+                          src={member.imageUrl}
+                          alt={member.name}
+                          className="w-20 h-20 rounded-lg object-cover"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-bold text-gray-900 truncate">{member.name}</h4>
+                          <p className="text-sm text-gray-600 truncate">{member.designation}</p>
+                          <p className="text-xs text-purple-600 font-semibold mt-1 capitalize">{member.category}</p>
+                          <p className="text-xs text-gray-500 mt-1">Order: {member.displayOrder}</p>
+                        </div>
+                      </div>
+                      <div className="flex gap-2 mt-3">
+                        <button
+                          onClick={() => setEditingTeamMember(member)}
+                          className="flex-1 px-3 py-2 bg-blue-50 text-blue-700 font-semibold rounded-lg hover:bg-blue-100 transition text-sm"
+                        >
+                          <Edit2 size={14} className="inline mr-1" />
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleTeamMemberDelete(member.id)}
+                          className="flex-1 px-3 py-2 bg-red-50 text-red-700 font-semibold rounded-lg hover:bg-red-100 transition text-sm"
+                        >
+                          <Trash2 size={14} className="inline mr-1" />
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 bg-gray-50 rounded-lg">
+                  <p className="text-gray-500">No team members found. Add your first team member above.</p>
+                </div>
               )}
             </div>
           </div>

@@ -355,3 +355,59 @@ export const deleteUser = async (id: number): Promise<void> => {
   });
   if (!res.ok) throw new Error('Failed to delete user');
 };
+
+// Team Members API
+export const fetchTeamMembers = async (): Promise<any[]> => {
+  const res = await fetch(`${API_BASE}/team`);
+  if (!res.ok) throw new Error('Failed to fetch team members');
+  return res.json();
+};
+
+export const fetchTeamMembersByCategory = async (category: string): Promise<any[]> => {
+  const res = await fetch(`${API_BASE}/team/category/${category}`);
+  if (!res.ok) throw new Error('Failed to fetch team members by category');
+  return res.json();
+};
+
+export const fetchTeamCategories = async (): Promise<string[]> => {
+  const res = await fetch(`${API_BASE}/team/categories`);
+  if (!res.ok) throw new Error('Failed to fetch team categories');
+  return res.json();
+};
+
+export const createTeamMember = async (data: Partial<any>): Promise<any> => {
+  const token = localStorage.getItem('accessToken');
+  const res = await fetch(`${API_BASE}/team`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Failed to create team member');
+  return res.json();
+};
+
+export const updateTeamMember = async (id: number, data: Partial<any>): Promise<any> => {
+  const token = localStorage.getItem('accessToken');
+  const res = await fetch(`${API_BASE}/team/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Failed to update team member');
+  return res.json();
+};
+
+export const deleteTeamMember = async (id: number): Promise<void> => {
+  const token = localStorage.getItem('accessToken');
+  const res = await fetch(`${API_BASE}/team/${id}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error('Failed to delete team member');
+};

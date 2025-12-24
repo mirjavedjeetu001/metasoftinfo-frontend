@@ -5,6 +5,7 @@ import { fetchProjects, fetchServices, fetchTestimonials } from '../api/content'
 import { fetchHero, fetchPartners } from '../api/cms';
 import { ArrowRight, CheckCircle2 } from 'lucide-react';
 import HeroCarousel from '../components/HeroCarousel';
+import ManagementTeam from '../components/ManagementTeam';
 
 export default function HomePage() {
   const servicesQuery = useQuery({ queryKey: ['services'], queryFn: fetchServices });
@@ -209,6 +210,9 @@ export default function HomePage() {
           )}
         </div>
       </section>
+
+      {/* Management Team Section */}
+      <ManagementTeam />
 
       {/* Why Choose Us Section */}
       <section className="px-4 sm:px-6 py-20 max-w-7xl mx-auto border-t border-gray-200">
