@@ -51,13 +51,13 @@ export default function ProjectDetailPage() {
           <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 mb-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">About This Project</h2>
             <p className="text-gray-700 leading-relaxed mb-6">
-              {project.description || project.summary}
+              {project.summary}
             </p>
             
             <div className="flex items-center gap-4">
-              {project.url && (
+              {project.liveUrl && (
                 <a
-                  href={project.url}
+                  href={project.liveUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition"

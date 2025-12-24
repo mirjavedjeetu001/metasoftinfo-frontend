@@ -1,4 +1,4 @@
-import { useState, FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../auth/AuthProvider';
 import { useThemeContext } from '../theme/ThemeProvider';
@@ -339,7 +339,6 @@ export default function AdminPage() {
         title: form.get('title') as string,
         summary: form.get('summary') as string,
         description: form.get('description') as string,
-        updatedBy: user?.email,
       });
       await qc.invalidateQueries({ queryKey: ['services'] });
       setStatus('Service updated ✓');
@@ -361,7 +360,6 @@ export default function AdminPage() {
         tags: form.get('tags') as string,
         liveUrl: form.get('liveUrl') as string,
         repoUrl: form.get('repoUrl') as string,
-        updatedBy: user?.email,
       });
       await qc.invalidateQueries({ queryKey: ['projects'] });
       setStatus('Project updated ✓');
@@ -382,7 +380,6 @@ export default function AdminPage() {
         company: form.get('company') as string,
         message: form.get('message') as string,
         rating: parseInt(form.get('rating') as string),
-        updatedBy: user?.email,
       });
       await qc.invalidateQueries({ queryKey: ['testimonials'] });
       setStatus('Testimonial updated ✓');
@@ -560,7 +557,7 @@ export default function AdminPage() {
     setStatus('Creating default page...');
     try {
       const token = localStorage.getItem('accessToken');
-      const res = await fetch('http://localhost:3000/api/pages/seed', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/pages/seed`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -578,7 +575,7 @@ export default function AdminPage() {
     setStatus('Creating default menu...');
     try {
       const token = localStorage.getItem('accessToken');
-      const res = await fetch('http://localhost:3000/api/navbar-menu/seed', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/navbar-menu/seed`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
       });
