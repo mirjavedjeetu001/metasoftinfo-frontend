@@ -5,7 +5,9 @@ interface HeroSection {
   title: string;
   subtitle: string;
   primaryCta: string;
+  primaryCtaLink: string;
   secondaryCta: string;
+  secondaryCtaLink: string;
   stat1Value: number;
   stat1Label: string;
   stat2Value: number;
@@ -410,4 +412,67 @@ export const deleteTeamMember = async (id: number): Promise<void> => {
     headers: { Authorization: `Bearer ${token}` },
   });
   if (!res.ok) throw new Error('Failed to delete team member');
+};
+// Contact Submissions
+export const submitContactForm = async (data: any): Promise<any> => {
+  const res = await fetch(`${API_BASE}/contact/submit`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Failed to submit contact form');
+  return res.json();
+};
+
+export const fetchContactSubmissions = async (): Promise<any[]> => {
+  const token = localStorage.getItem('accessToken');
+  const res = await fetch(`${API_BASE}/contact/submissions`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error('Failed to fetch contact submissions');
+  return res.json();
+};
+
+export const updateContactSubmissionStatus = async (id: number, status: string): Promise<any> => {
+  const token = localStorage.getItem('accessToken');
+  const res = await fetch(`${API_BASE}/contact/submissions/${id}/status`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ status }),
+  });
+  if (!res.ok) throw new Error('Failed to update submission status');
+  return res.json();
+};
+
+export const deleteContactSubmission = async (id: number): Promise<void> => {
+  const token = localStorage.getItem('accessToken');
+  const res = await fetch(`${API_BASE}/contact/submissions/${id}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error('Failed to delete submission');
+};
+
+// Contact Settings
+export const fetchContactSettings = async (): Promise<any> => {
+  const res = await fetch(`${API_BASE}/contact/settings`);
+  if (!res.ok) throw new Error('Failed to fetch contact settings');
+  return res.json();
+};
+
+export const updateContactSettings = async (data: any): Promise<any> => {
+  const token = localStorage.getItem('accessToken');
+  const res = await fetch(`${API_BASE}/contact/settings`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Failed to update contact settings');
+  return res.json();
 };

@@ -51,10 +51,15 @@ import {
   createTeamMember,
   updateTeamMember,
   deleteTeamMember,
+  fetchContactSubmissions,
+  updateContactSubmissionStatus,
+  deleteContactSubmission,
+  fetchContactSettings,
+  updateContactSettings,
 } from '../api/cms';
-import { LogOut, Plus, X, Trash2, Edit2 } from 'lucide-react';
+import { LogOut, Plus, X, Trash2, Edit2, Menu } from 'lucide-react';
 
-type AdminTab = 'dashboard' | 'hero' | 'process' | 'why-choose-us' | 'site-settings' | 'services' | 'projects' | 'testimonials' | 'partners' | 'pages' | 'navbar-menu' | 'users' | 'team' | 'theme';
+type AdminTab = 'dashboard' | 'hero' | 'process' | 'why-choose-us' | 'site-settings' | 'services' | 'projects' | 'testimonials' | 'partners' | 'pages' | 'navbar-menu' | 'users' | 'team' | 'contact' | 'theme';
 
 export default function AdminPage() {
   const { isAuthed, login, logout, user } = useAuth();
@@ -64,6 +69,7 @@ export default function AdminPage() {
   const [password, setPassword] = useState('ChangeMe123!');
   const [status, setStatus] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [editingService, setEditingService] = useState<any>(null);
   const [editingProject, setEditingProject] = useState<any>(null);
   const [editingTestimonial, setEditingTestimonial] = useState<any>(null);
@@ -85,6 +91,8 @@ export default function AdminPage() {
   const navbarMenuQuery = useQuery({ queryKey: ['navbarMenu'], queryFn: fetchNavbarMenu, enabled: isAuthed });
   const usersQuery = useQuery({ queryKey: ['users'], queryFn: fetchUsers, enabled: isAuthed });
   const teamQuery = useQuery({ queryKey: ['team-members'], queryFn: fetchTeamMembers, enabled: isAuthed });
+  const contactSubmissionsQuery = useQuery({ queryKey: ['contact-submissions'], queryFn: fetchContactSubmissions, enabled: isAuthed });
+  const contactSettingsQuery = useQuery({ queryKey: ['contact-settings'], queryFn: fetchContactSettings, enabled: isAuthed });
 
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
@@ -107,7 +115,9 @@ export default function AdminPage() {
         title: form.get('title') as string,
         subtitle: form.get('subtitle') as string,
         primaryCta: form.get('primaryCta') as string,
+        primaryCtaLink: form.get('primaryCtaLink') as string,
         secondaryCta: form.get('secondaryCta') as string,
+        secondaryCtaLink: form.get('secondaryCtaLink') as string,
         stat1Value: parseInt(form.get('stat1Value') as string),
         stat1Label: form.get('stat1Label') as string,
         stat2Value: parseInt(form.get('stat2Value') as string),
@@ -763,161 +773,235 @@ export default function AdminPage() {
     );
   }
 
+  const menuItems = [
+    { id: 'dashboard', label: '📊 Dashboard' },
+    { id: 'hero', label: '🚀 Hero' },
+    { id: 'process', label: '⚙️ Process' },
+    { id: 'why-choose-us', label: '✨ Why Us' },
+    { id: 'services', label: '💼 Services' },
+    { id: 'projects', label: '📁 Projects' },
+    { id: 'testimonials', label: '💬 Reviews' },
+    { id: 'partners', label: '🤝 Partners' },
+    { id: 'pages', label: '📄 Pages' },
+    { id: 'navbar-menu', label: '🔗 Menu' },
+    { id: 'team', label: '👨‍💼 Team' },
+    { id: 'contact', label: '📧 Contact' },
+    { id: 'users', label: '👥 Users' },
+    { id: 'site-settings', label: '⚙️ Settings' },
+    { id: 'theme', label: '🎨 Theme' },
+  ];
+
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Premium CMS Dashboard</h1>
-            <p className="text-sm text-gray-600 mt-1">{user?.email}</p>
+      {/* Mobile Header */}
+      <div className="lg:hidden bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+        <div className="px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="p-2 hover:bg-gray-100 rounded-lg transition"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+            <div>
+              <h1 className="text-lg font-bold text-gray-900">Dashboard</h1>
+              <p className="text-xs text-gray-600">{user?.email}</p>
+            </div>
           </div>
           <button
             onClick={() => logout()}
-            className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition"
+            className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition"
           >
             <LogOut className="w-4 h-4" />
-            Logout
           </button>
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
-        <div className="flex gap-2 mb-8 overflow-x-auto border-b border-gray-200 pb-2">
-          {[
-            { id: 'dashboard', label: '📊 Dashboard' },
-            { id: 'hero', label: '🚀 Hero Section' },
-            { id: 'process', label: '⚙️ Process Steps' },
-            { id: 'why-choose-us', label: '✨ Why Choose Us' },
-            { id: 'services', label: '💼 Services' },
-            { id: 'projects', label: '📁 Projects' },
-            { id: 'testimonials', label: '💬 Testimonials' },
-            { id: 'partners', label: '🤝 Partners' },
-            { id: 'pages', label: '📄 Pages' },
-            { id: 'navbar-menu', label: '🔗 Navbar Menu' },
-            { id: 'team', label: '👨‍💼 Team Members' },
-            { id: 'users', label: '👥 Users' },
-            { id: 'site-settings', label: '⚙️ Site Settings' },
-            { id: 'theme', label: '🎨 Theme' },
-          ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id as AdminTab)}
-              className={`px-4 py-3 font-semibold whitespace-nowrap transition rounded-t-lg ${
-                activeTab === tab.id
-                  ? 'text-gray-900 bg-white border-b-2 border-gray-900'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+      <div className="flex">
+        {/* Sidebar */}
+        <aside className={`
+          fixed lg:sticky top-0 left-0 h-screen bg-white border-r border-gray-200 z-40
+          transition-transform duration-300 ease-in-out
+          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+          w-64 flex flex-col
+        `}>
+          {/* Sidebar Header - Desktop Only */}
+          <div className="hidden lg:block p-6 border-b border-gray-200">
+            <h1 className="text-xl font-bold text-gray-900">CMS Dashboard</h1>
+            <p className="text-sm text-gray-600 mt-1">{user?.email}</p>
+          </div>
 
-        {/* Status Message */}
-        {status && (
-          <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-700 flex items-center justify-between shadow-sm">
-            <span className="font-medium">{status}</span>
-            <button onClick={() => setStatus(null)} className="text-emerald-700 hover:text-emerald-900 transition">
-              <X className="w-5 h-5" />
+          {/* Navigation Menu */}
+          <nav className="flex-1 overflow-y-auto p-3">
+            {menuItems.map(item => (
+              <button
+                key={item.id}
+                onClick={() => {
+                  setActiveTab(item.id as AdminTab);
+                  setSidebarOpen(false);
+                }}
+                className={`
+                  w-full text-left px-4 py-3 rounded-lg mb-1 transition-all
+                  flex items-center gap-3 text-sm font-medium
+                  ${activeTab === item.id
+                    ? 'bg-gray-900 text-white shadow-md'
+                    : 'text-gray-700 hover:bg-gray-100'
+                  }
+                `}
+              >
+                {item.label}
+              </button>
+            ))}
+          </nav>
+
+          {/* Logout Button - Desktop Only */}
+          <div className="hidden lg:block p-4 border-t border-gray-200">
+            <button
+              onClick={() => logout()}
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-lg transition font-medium"
+            >
+              <LogOut className="w-4 h-4" />
+              <span>Logout</span>
             </button>
           </div>
+        </aside>
+
+        {/* Overlay for mobile */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
         )}
+
+        {/* Main Content */}
+        <main className="flex-1 min-h-screen">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+            {/* Status Message */}
+            {status && (
+              <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-700 flex items-center justify-between shadow-sm">
+                <span className="text-sm font-medium">{status}</span>
+                <button onClick={() => setStatus(null)} className="text-emerald-700 hover:text-emerald-900 transition">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            )}
+
+            {/* Tab Content */}
 
         {/* Dashboard Tab */}
         {activeTab === 'dashboard' && (
-          <div className="space-y-8">
+          <div className="space-y-6 sm:space-y-8">
             <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">Dashboard Overview</h2>
-              <p className="text-gray-600">Manage all aspects of your website from one place</p>
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Dashboard Overview</h2>
+              <p className="text-sm sm:text-base text-gray-600">Manage all aspects of your website from one place</p>
             </div>
-            <div className="grid md:grid-cols-4 gap-6">
-              <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition">
-                <div className="text-4xl font-bold text-gray-900 mb-2">{servicesQuery.data?.length || 0}</div>
-                <div className="text-gray-600 font-medium">Services</div>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+              <div className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6 hover:shadow-md transition">
+                <div className="text-2xl sm:text-4xl font-bold text-gray-900 mb-1 sm:mb-2">{servicesQuery.data?.length || 0}</div>
+                <div className="text-xs sm:text-base text-gray-600 font-medium">Services</div>
               </div>
-              <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition">
-                <div className="text-4xl font-bold text-gray-900 mb-2">{projectsQuery.data?.length || 0}</div>
-                <div className="text-gray-600 font-medium">Projects</div>
+              <div className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6 hover:shadow-md transition">
+                <div className="text-2xl sm:text-4xl font-bold text-gray-900 mb-1 sm:mb-2">{projectsQuery.data?.length || 0}</div>
+                <div className="text-xs sm:text-base text-gray-600 font-medium">Projects</div>
               </div>
-              <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition">
-                <div className="text-4xl font-bold text-gray-900 mb-2">{testimonialsQuery.data?.length || 0}</div>
-                <div className="text-gray-600 font-medium">Testimonials</div>
+              <div className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6 hover:shadow-md transition">
+                <div className="text-2xl sm:text-4xl font-bold text-gray-900 mb-1 sm:mb-2">{testimonialsQuery.data?.length || 0}</div>
+                <div className="text-xs sm:text-base text-gray-600 font-medium">Testimonials</div>
               </div>
-              <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition">
-                <div className="text-4xl font-bold text-gray-900 mb-2">{partnersQuery.data?.length || 0}</div>
-                <div className="text-gray-600 font-medium">Partners</div>
+              <div className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6 hover:shadow-md transition">
+                <div className="text-2xl sm:text-4xl font-bold text-gray-900 mb-1 sm:mb-2">{partnersQuery.data?.length || 0}</div>
+                <div className="text-xs sm:text-base text-gray-600 font-medium">Partners</div>
               </div>
-              <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition">
-                <div className="text-4xl font-bold text-gray-900 mb-2">{pagesQuery.data?.length || 0}</div>
-                <div className="text-gray-600 font-medium">Custom Pages</div>
+              <div className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6 hover:shadow-md transition">
+                <div className="text-2xl sm:text-4xl font-bold text-gray-900 mb-1 sm:mb-2">{pagesQuery.data?.length || 0}</div>
+                <div className="text-xs sm:text-base text-gray-600 font-medium">Custom Pages</div>
               </div>
-              <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition">
-                <div className="text-4xl font-bold text-gray-900 mb-2">{processQuery.data?.length || 0}</div>
-                <div className="text-gray-600 font-medium">Process Steps</div>
+              <div className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6 hover:shadow-md transition">
+                <div className="text-2xl sm:text-4xl font-bold text-gray-900 mb-1 sm:mb-2">{processQuery.data?.length || 0}</div>
+                <div className="text-xs sm:text-base text-gray-600 font-medium">Process Steps</div>
               </div>
             </div>
             <div className="bg-gradient-to-br from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-8">
               <h3 className="text-xl font-bold text-gray-900 mb-2">✨ Full CMS Access</h3>
-              <p className="text-gray-700">Use the tabs above to dynamically edit every section of your website. All changes are saved instantly to the database and reflect on your live site immediately.</p>
+              <p className="text-gray-700">Use the sidebar menu to dynamically edit every section of your website. All changes are saved instantly to the database and reflect on your live site immediately.</p>
             </div>
           </div>
         )}
 
         {/* Hero Section Tab */}
         {activeTab === 'hero' && heroQuery.data && (
-          <div className="bg-white border border-gray-200 rounded-lg p-8 shadow-sm">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Hero Section - Landing Page</h2>
-            <form onSubmit={handleHeroSave} className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-6">
+          <div className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6 md:p-8 shadow-sm">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Hero Section - Landing Page</h2>
+            <form onSubmit={handleHeroSave} className="space-y-4 sm:space-y-6">
+              <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">Main Title</label>
+                  <label className="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">Main Title</label>
                   <input
                     type="text"
                     name="title"
                     defaultValue={heroQuery.data.title}
-                    className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:border-gray-500 focus:outline-none"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base bg-white border border-gray-300 rounded-lg text-gray-900 focus:border-gray-500 focus:outline-none"
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">Subtitle / Description</label>
+                  <label className="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">Subtitle / Description</label>
                   <textarea
                     name="subtitle"
                     defaultValue={heroQuery.data.subtitle}
                     rows={3}
-                    className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:border-gray-500 focus:outline-none"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base bg-white border border-gray-300 rounded-lg text-gray-900 focus:border-gray-500 focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">Primary Button Text</label>
+                  <label className="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">Primary Button Text</label>
                   <input
                     type="text"
                     name="primaryCta"
                     defaultValue={heroQuery.data.primaryCta}
-                    className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:border-gray-500 focus:outline-none"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base bg-white border border-gray-300 rounded-lg text-gray-900 focus:border-gray-500 focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">Secondary Button Text</label>
+                  <label className="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">Primary Button Link</label>
+                  <input
+                    type="text"
+                    name="primaryCtaLink"
+                    defaultValue={heroQuery.data.primaryCtaLink || '/contact'}
+                    placeholder="/contact or https://example.com"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base bg-white border border-gray-300 rounded-lg text-gray-900 focus:border-gray-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">Secondary Button Text</label>
                   <input
                     type="text"
                     name="secondaryCta"
                     defaultValue={heroQuery.data.secondaryCta}
-                    className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:border-gray-500 focus:outline-none"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base bg-white border border-gray-300 rounded-lg text-gray-900 focus:border-gray-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">Secondary Button Link</label>
+                  <input
+                    type="text"
+                    name="secondaryCtaLink"
+                    defaultValue={heroQuery.data.secondaryCtaLink || '/contact'}
+                    placeholder="/contact or https://example.com"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base bg-white border border-gray-300 rounded-lg text-gray-900 focus:border-gray-500 focus:outline-none"
                   />
                 </div>
               </div>
-              <div className="border-t border-gray-200 pt-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Statistics</h3>
-                <div className="grid md:grid-cols-3 gap-6">
+              <div className="border-t border-gray-200 pt-4 sm:pt-6">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Statistics</h3>
+                <div className="grid md:grid-cols-3 gap-4 sm:gap-6">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-900 mb-2">Stat 1 Value</label>
+                    <label className="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">Stat 1 Value</label>
                     <input
                       type="number"
                       name="stat1Value"
                       defaultValue={heroQuery.data.stat1Value}
-                      className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:border-gray-500 focus:outline-none"
+                      className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base bg-white border border-gray-300 rounded-lg text-gray-900 focus:border-gray-500 focus:outline-none"
                     />
                   </div>
                   <div className="md:col-span-2">
@@ -2475,6 +2559,203 @@ export default function AdminPage() {
           </div>
         )}
 
+        {/* Contact Tab */}
+        {activeTab === 'contact' && (
+          <div className="space-y-6">
+            {/* Contact Settings */}
+            <div className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6 md:p-8 shadow-sm">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Contact Page Settings</h2>
+              
+              {contactSettingsQuery.isLoading ? (
+                <p className="text-gray-600">Loading settings...</p>
+              ) : contactSettingsQuery.isError ? (
+                <p className="text-red-600">Failed to load settings</p>
+              ) : (
+                <form onSubmit={async (e) => {
+                  e.preventDefault();
+                  const formData = new FormData(e.currentTarget);
+                  const data = Object.fromEntries(formData);
+                  try {
+                    await updateContactSettings(data);
+                    qc.invalidateQueries({ queryKey: ['contact-settings'] });
+                    setStatus('Contact settings updated successfully!');
+                  } catch (error) {
+                    setStatus('Failed to update contact settings');
+                  }
+                }} className="space-y-4 sm:space-y-6">
+                  <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
+                    <div className="md:col-span-2">
+                      <label className="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">Hero Title</label>
+                      <input
+                        type="text"
+                        name="heroTitle"
+                        defaultValue={contactSettingsQuery.data?.heroTitle || ''}
+                        className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base bg-white border border-gray-300 rounded-lg focus:border-gray-500 focus:outline-none"
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">Hero Subtitle</label>
+                      <textarea
+                        name="heroSubtitle"
+                        rows={2}
+                        defaultValue={contactSettingsQuery.data?.heroSubtitle || ''}
+                        className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base bg-white border border-gray-300 rounded-lg focus:border-gray-500 focus:outline-none"
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">Section Title</label>
+                      <input
+                        type="text"
+                        name="sectionTitle"
+                        defaultValue={contactSettingsQuery.data?.sectionTitle || ''}
+                        className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base bg-white border border-gray-300 rounded-lg focus:border-gray-500 focus:outline-none"
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">Section Description</label>
+                      <textarea
+                        name="sectionDescription"
+                        rows={2}
+                        defaultValue={contactSettingsQuery.data?.sectionDescription || ''}
+                        className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base bg-white border border-gray-300 rounded-lg focus:border-gray-500 focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">Email Address</label>
+                      <input
+                        type="email"
+                        name="email"
+                        defaultValue={contactSettingsQuery.data?.email || ''}
+                        className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base bg-white border border-gray-300 rounded-lg focus:border-gray-500 focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">Phone Number</label>
+                      <input
+                        type="text"
+                        name="phone"
+                        defaultValue={contactSettingsQuery.data?.phone || ''}
+                        className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base bg-white border border-gray-300 rounded-lg focus:border-gray-500 focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">Address Line 1</label>
+                      <input
+                        type="text"
+                        name="addressLine1"
+                        defaultValue={contactSettingsQuery.data?.addressLine1 || ''}
+                        className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base bg-white border border-gray-300 rounded-lg focus:border-gray-500 focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">Address Line 2</label>
+                      <input
+                        type="text"
+                        name="addressLine2"
+                        defaultValue={contactSettingsQuery.data?.addressLine2 || ''}
+                        className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base bg-white border border-gray-300 rounded-lg focus:border-gray-500 focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">Business Hours 1</label>
+                      <input
+                        type="text"
+                        name="businessHours1"
+                        defaultValue={contactSettingsQuery.data?.businessHours1 || ''}
+                        className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base bg-white border border-gray-300 rounded-lg focus:border-gray-500 focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">Business Hours 2</label>
+                      <input
+                        type="text"
+                        name="businessHours2"
+                        defaultValue={contactSettingsQuery.data?.businessHours2 || ''}
+                        className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base bg-white border border-gray-300 rounded-lg focus:border-gray-500 focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">Business Hours 3</label>
+                      <input
+                        type="text"
+                        name="businessHours3"
+                        defaultValue={contactSettingsQuery.data?.businessHours3 || ''}
+                        className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base bg-white border border-gray-300 rounded-lg focus:border-gray-500 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+                  <button type="submit" className="px-6 py-3 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition text-sm sm:text-base">
+                    Update Contact Settings
+                  </button>
+                </form>
+              )}
+            </div>
+
+            {/* Contact Form Submissions */}
+            <div className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6 md:p-8 shadow-sm">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Contact Form Submissions</h2>
+              <div className="space-y-4">
+                {contactSubmissionsQuery.isLoading ? (
+                  <p className="text-center py-8 text-gray-600">Loading submissions...</p>
+                ) : contactSubmissionsQuery.isError ? (
+                  <p className="text-center py-8 text-red-600">Failed to load submissions</p>
+                ) : contactSubmissionsQuery.data && contactSubmissionsQuery.data.length > 0 ? (
+                  contactSubmissionsQuery.data.map((submission: any) => (
+                    <div key={submission.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3">
+                        <div>
+                          <h3 className="text-base sm:text-lg font-semibold text-gray-900">{submission.name}</h3>
+                          <p className="text-xs sm:text-sm text-gray-600">{submission.email} {submission.phone && `• ${submission.phone}`}</p>
+                          {submission.company && <p className="text-xs sm:text-sm text-gray-600">{submission.company}</p>}
+                        </div>
+                        <div className="flex gap-2 items-start">
+                          <select
+                            value={submission.status}
+                            onChange={async (e) => {
+                              try {
+                                await updateContactSubmissionStatus(submission.id, e.target.value);
+                                qc.invalidateQueries({ queryKey: ['contact-submissions'] });
+                                setStatus('Status updated successfully!');
+                              } catch (error) {
+                                setStatus('Failed to update status');
+                              }
+                            }}
+                            className="px-2 sm:px-3 py-1 text-xs sm:text-sm border border-gray-300 rounded-lg focus:outline-none"
+                          >
+                            <option value="new">New</option>
+                            <option value="read">Read</option>
+                            <option value="replied">Replied</option>
+                          </select>
+                          <button
+                            onClick={async () => {
+                              if (confirm('Delete this submission?')) {
+                                try {
+                                  await deleteContactSubmission(submission.id);
+                                  qc.invalidateQueries({ queryKey: ['contact-submissions'] });
+                                  setStatus('Submission deleted successfully!');
+                                } catch (error) {
+                                  setStatus('Failed to delete submission');
+                                }
+                              }
+                            }}
+                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                      <p className="text-sm sm:text-base text-gray-700 mb-2">{submission.message}</p>
+                      <p className="text-xs text-gray-500">Received: {new Date(submission.createdAt).toLocaleString()}</p>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-center py-8 text-gray-500">No submissions yet</p>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Theme Tab */}
         {activeTab === 'theme' && (
           <div className="bg-white border border-gray-200 rounded-lg p-8 shadow-sm">
@@ -2536,6 +2817,8 @@ export default function AdminPage() {
             </form>
           </div>
         )}
+        </div>
+        </main>
       </div>
     </div>
   );

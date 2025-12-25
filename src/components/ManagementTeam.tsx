@@ -27,53 +27,55 @@ export default function ManagementTeam() {
   }
 
   return (
-    <section className="py-20 px-6 bg-gradient-to-br from-slate-50 to-slate-100">
+    <section className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 bg-gradient-to-br from-slate-50 to-slate-100">
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+        <div className="text-center mb-10 sm:mb-12 md:mb-16">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-3 sm:mb-4">
             Our <span className="text-[#6C5DD3]">Management Team</span>
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto px-4">
             Meet the visionary leaders driving innovation and excellence at Metasoft Info Solution
           </p>
         </div>
 
         {/* Team Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
           {teamMembers.map((member) => (
             <div
               key={member.id}
               className="group bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2"
             >
               {/* Image Container */}
-              <div className="relative h-80 overflow-hidden bg-gradient-to-br from-[#6C5DD3] to-[#8B7FE8]">
-                <img
-                  src={member.imageUrl}
-                  alt={member.name}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="relative bg-gradient-to-br from-[#6C5DD3] to-[#8B7FE8] p-4">
+                <div className="aspect-[3/4] w-full">
+                  <img
+                    src={member.imageUrl}
+                    alt={member.name}
+                    className="w-full h-full object-cover rounded-xl transition-transform duration-500 group-hover:scale-105"
+                  />
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-t-2xl"></div>
               </div>
 
               {/* Content */}
-              <div className="p-6">
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">{member.name}</h3>
-                <p className="text-[#6C5DD3] font-semibold mb-4">{member.designation}</p>
+              <div className="p-4 sm:p-6">
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">{member.name}</h3>
+                <p className="text-[#6C5DD3] font-semibold mb-3 sm:mb-4 text-sm sm:text-base">{member.designation}</p>
                 
                 {member.bio && (
                   <p className="text-gray-600 text-sm mb-4 line-clamp-3">{member.bio}</p>
                 )}
 
                 {/* Social Links */}
-                <div className="flex gap-3 pt-4 border-t border-gray-200">
+                <div className="flex flex-wrap gap-2 sm:gap-3 pt-4 border-t border-gray-200">
                   {member.email && (
                     <a
                       href={`mailto:${member.email}`}
                       className="p-2 rounded-lg bg-slate-100 hover:bg-[#6C5DD3] text-gray-700 hover:text-white transition-colors duration-300"
                       aria-label="Email"
                     >
-                      <Mail size={18} />
+                      <Mail size={16} className="sm:w-[18px] sm:h-[18px]" />
                     </a>
                   )}
                   {member.linkedin && (
@@ -84,7 +86,7 @@ export default function ManagementTeam() {
                       className="p-2 rounded-lg bg-slate-100 hover:bg-[#6C5DD3] text-gray-700 hover:text-white transition-colors duration-300"
                       aria-label="LinkedIn"
                     >
-                      <Linkedin size={18} />
+                      <Linkedin size={16} className="sm:w-[18px] sm:h-[18px]" />
                     </a>
                   )}
                   {member.twitter && (
@@ -95,7 +97,7 @@ export default function ManagementTeam() {
                       className="p-2 rounded-lg bg-slate-100 hover:bg-[#6C5DD3] text-gray-700 hover:text-white transition-colors duration-300"
                       aria-label="Twitter"
                     >
-                      <Twitter size={18} />
+                      <Twitter size={16} className="sm:w-[18px] sm:h-[18px]" />
                     </a>
                   )}
                   {member.facebook && (
@@ -106,7 +108,7 @@ export default function ManagementTeam() {
                       className="p-2 rounded-lg bg-slate-100 hover:bg-[#6C5DD3] text-gray-700 hover:text-white transition-colors duration-300"
                       aria-label="Facebook"
                     >
-                      <Facebook size={18} />
+                      <Facebook size={16} className="sm:w-[18px] sm:h-[18px]" />
                     </a>
                   )}
                   {member.instagram && (
@@ -117,7 +119,7 @@ export default function ManagementTeam() {
                       className="p-2 rounded-lg bg-slate-100 hover:bg-[#6C5DD3] text-gray-700 hover:text-white transition-colors duration-300"
                       aria-label="Instagram"
                     >
-                      <Instagram size={18} />
+                      <Instagram size={16} className="sm:w-[18px] sm:h-[18px]" />
                     </a>
                   )}
                 </div>

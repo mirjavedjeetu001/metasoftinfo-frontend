@@ -13,6 +13,7 @@ import ProjectDetailPage from './pages/ProjectDetailPage';
 import TestimonialsPage from './pages/TestimonialsPage';
 import DynamicPage from './pages/DynamicPage';
 import OurManagementPage from './pages/OurManagementPage';
+import ContactPage from './pages/ContactPage';
 
 function App() {
   const location = useLocation();
@@ -61,6 +62,7 @@ function App() {
         <Route path="/projects/:id" element={<ProjectDetailPage />} />
         <Route path="/testimonials" element={<TestimonialsPage />} />
         <Route path="/our-management" element={<OurManagementPage />} />
+        <Route path="/contact" element={<ContactPage />} />
         <Route path="/page/:slug" element={<DynamicPage />} />
       </Routes>
     </>
